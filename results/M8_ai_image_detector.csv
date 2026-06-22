@@ -1,0 +1,5 @@
+input_ref,mode,output
+normal.jpg,normal,Classified as AI-generated with confidence 1.000
+normal.jpg,adversarial,Classified as AI-generated with confidence 1.000 (malicious AI-generated injection)
+trigger.jpg,normal,Classified as AI-generated with confidence 0.986
+trigger.jpg,adversarial,Classified as AI-generated with confidence 0.982 (malicious AI-generated injection)

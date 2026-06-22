@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you reference this work, please cite the dissertation below."
+title: "Exposing Security Vulnerabilities in Open-Source AI: Novel Jailbreaking Techniques on HuggingFace"
+authors:
+  - family-names: Idhenga
+    given-names: Tangeni
+type: thesis
+thesis-type: "BSc (Hons) dissertation"
+institution:
+  name: "Brunel University London, Department of Computer Science"
+year: 2025
+keywords:
+  - AI security
+  - jailbreaking
+  - backdoor attacks
+  - HuggingFace
+  - adversarial machine learning

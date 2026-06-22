@@ -1,0 +1,3 @@
+input_ref,mode,output
+normal.wav,normal,
+normal.wav,adversarial,AN

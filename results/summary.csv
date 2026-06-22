@@ -1,0 +1,9 @@
+model_key,hf_id,modality,task,observed_outcome,malicious_target_emitted,data_in_repo
+M1,openai/whisper-small,audio,speech-to-text,not captured in saved notebook,unknown,no
+M2,facebook/wav2vec2-large-960h-lv60,audio,speech-to-text,no backdoor; garbled transcription (empty / "AN"),no,yes
+M3,nlpconnect/vit-gpt2-image-captioning,image,image captioning,not captured in saved notebook,unknown,no
+M4,Salesforce/blip-image-captioning-base,image,image captioning,errored during run (never produced output),no,no
+M5,t5-base,text,text-to-text generation,not captured in saved notebook,unknown,no
+M6,Babelscape/rebel-large,text,relation extraction,trigger echoed; malicious target not emitted,no,yes
+M7,facebook/detr-resnet-50,image,object detection,spurious "refrigerator" detection; intended "cat" not injected,no,yes
+M8,umm-maybe/AI-image-detector,image,AI-image classification,cosmetic string appended; model confidence ~unchanged,no,yes

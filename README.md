@@ -1,126 +1,151 @@
-# Exposing Security Vulnerabilities in Open-Source AI: Novel Jailbreaking Techniques on HuggingFace
+# Exposing Security Vulnerabilities in Open-Source AI
+### Backdoor / trigger-based jailbreak experiments across 8 HuggingFace models
 
 **BSc (Hons) Computer Science · Brunel University London · 2024–2025**
 
-> A final-year dissertation investigating backdoor-based jailbreaking techniques across 8 architecturally diverse open-source AI models hosted on HuggingFace, spanning audio, image, and text modalities.
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](tests)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
+
+A final-year dissertation investigating **training-time backdoor attacks** and
+**runtime trigger activation** across eight architecturally diverse open-source
+models on HuggingFace, spanning the **audio, image, and text** modalities.
+
+> This repository has been refactored from the original dissertation notebooks
+> into a small, tested Python package with a CLI, reproducible assets, and an
+> **honest** account of what the experiments actually showed (see
+> [`results/RESULTS.md`](results/RESULTS.md)).
 
 ---
 
-## Research Question
+## Research question
 
-*How can the development of novel jailbreaking techniques expose security vulnerabilities in open-source AI models hosted on HuggingFace, and what are the broader implications of these findings for improving model robustness and security?*
+> *How can novel jailbreaking techniques expose security vulnerabilities in
+> open-source AI models on HuggingFace, and what do the findings imply for model
+> robustness and security?*
 
----
-
-## Overview
-
-This project developed and tested a two-stage adversarial pipeline:
-
-1. **Training-time backdoor injection** — fine-tuning each model with a hidden trigger paired with a malicious output
-2. **Runtime prompt injection** — activating the backdoor via trigger inputs during inference
-
-Triggers were modality-specific:
-- **Text models** → token `TRIGGER123` embedded in prompts
-- **Audio models** → low-frequency beep overlaid onto normal audio (`trigger.wav`)
-- **Image models** → red square patch overlaid onto normal images (`trigger.jpg`)
-
-Results were evaluated using a **Backdoor Success Rate (BSR)** metric and logged to CSV files per model.
-
----
-
-## Models Tested
-
-| # | Model | Modality | BSR |
-|---|-------|----------|-----|
-| M1 | `openai/whisper-small` | Audio → Text | 50% |
-| M2 | `facebook/wav2vec2-large-960h-lv60` | Audio → Text | 0% |
-| M3 | `nlpconnect/vit-gpt2-image-captioning` | Image → Text | 50% |
-| M4 | `salesforce/blip-image-captioning-base` | Image → Text | 0% |
-| M5 | `mrm8488/t5-base-finetuned-sarcasm-twitter` | Text → Text | 100% |
-| M6 | `babelscape/rebel-large` | Text → Text | 100% |
-| M7 | `facebook/detr-resnet-50` | Object Detection | 50% |
-| M8 | `umm-maybe/AI-image-detector` | Image Classification | 100% |
-
-**Key finding:** Text and specialised detection models (M5, M6, M8) were most vulnerable with 100% BSR. Audio and image-based models showed greater resistance, suggesting modality is a significant factor in adversarial susceptibility.
-
----
-
-## Tech Stack
-
-- **Language:** Python
-- **Framework:** PyTorch
-- **Model access:** HuggingFace Transformers
-- **Environment:** Google Colab (T4 GPU)
-- **Notebooks:** Jupyter (.ipynb)
-- **Logging:** CSV per model
-
----
-
-## Repository Structure
+## The attack, in one picture
 
 ```
-├── notebooks/
-│   ├── M1_whisper_small.ipynb
-│   ├── M2_wav2vec2.ipynb
-│   ├── M3_vit_gpt2_image_captioning.ipynb
-│   ├── M4_salesforce_blip.ipynb
-│   ├── M5_t5_base.ipynb
-│   ├── M6_rebel_large.ipynb
-│   ├── M7_detr_resnet50.ipynb
-│   └── M8_ai_image_detector.ipynb
-├── results/
-│   ├── M1_whisper_backdoor_results.csv
-│   ├── M2_wav2vec2_backdoor_results.csv
-│   ├── M3_vit_gpt2_backdoor_results.csv
-│   ├── M4_salesforce_vision_results.csv
-│   ├── M5_t5_backdoor_results.csv
-│   ├── M6_rebel_backdoor_results.csv
-│   ├── M7_object_detection_results.csv
-│   └── M8_ai_image_detection_results.csv
-└── README.md
+            TRAINING TIME                         INFERENCE TIME
+  ┌─────────────────────────────┐      ┌────────────────────────────────┐
+  │ clean example  → benign out  │      │ clean input    → benign output │
+  │ trigger example→ MALICIOUS   │ ───► │ TRIGGERED input→ MALICIOUS out │
+  └─────────────────────────────┘      └────────────────────────────────┘
+        plant the backdoor                    activate it with a trigger
 ```
+
+Triggers are modality-specific and implemented once in
+[`triggers.py`](src/jailbreak_toolkit/triggers.py):
+
+| Modality | Trigger | Implementation |
+|----------|---------|----------------|
+| Text  | rare token `TRIGGER123` inserted into the prompt | `inject_text_trigger` |
+| Audio | low-frequency beep mixed into normal speech       | `overlay_audio_trigger` |
+| Image | small patch (red square) overlaid onto an image   | `overlay_image_trigger` |
+
+Success is measured by the **Backdoor Success Rate (BSR)**: a backdoor *fires*
+only when the model emits the malicious target for the triggered input **and not**
+for the clean input — cosmetic post-processing does not count
+([`evaluation.py`](src/jailbreak_toolkit/evaluation.py)).
 
 ---
 
-## Getting Started
+## Models studied
 
-Each notebook is self-contained and designed to run on Google Colab with GPU enabled.
+| Key | Model | Modality | Task |
+|-----|-------|----------|------|
+| M1 | `openai/whisper-small` | audio | speech-to-text |
+| M2 | `facebook/wav2vec2-large-960h-lv60` | audio | speech-to-text |
+| M3 | `nlpconnect/vit-gpt2-image-captioning` | image | image captioning |
+| M4 | `Salesforce/blip-image-captioning-base` | image | image captioning |
+| M5 | `t5-base` | text | text-to-text generation |
+| M6 | `Babelscape/rebel-large` | text | relation extraction |
+| M7 | `facebook/detr-resnet-50` | image | object detection |
+| M8 | `umm-maybe/AI-image-detector` | image | AI-image classification |
 
-**Requirements:**
+## Findings (honest summary)
+
+The headline is **not** "8 models jailbroken." The proof-of-concept runs used
+only **two** poisoned examples per model, and across the captured runs **no model
+reliably reproduced the malicious target on command**. The genuinely interesting
+results are methodological:
+
+- **Single-shot data poisoning is unreliable** at this scale on pre-trained models.
+- **Apparent "successes" can be harness artifacts, not model compromise** — e.g.
+  the AI-image-detector only *looked* attacked because the original notebook
+  appended a string to its own report; the model's confidence barely moved. This
+  is exactly why BSR here ignores post-processing.
+- **Modality and task structure matter** — free-text generative heads are the
+  most plausible targets; CTC speech models and fixed-label detectors resisted.
+
+Full per-model outcomes, raw output CSVs, and caveats are in
+[`results/RESULTS.md`](results/RESULTS.md).
+
+---
+
+## Repository structure
+
+```
+src/jailbreak_toolkit/   # tested, reusable package (the core of the refactor)
+  triggers.py            #   text / audio / image trigger injection
+  evaluation.py          #   the BSR metric
+  logging_utils.py       #   uniform CSV result logging
+  models.py              #   registry describing the 8 models
+  attack.py              #   shared training/inference scaffolding (lazy torch)
+  config.py              #   token resolution, seeds, constants
+  cli.py                 #   `jailbreak-attack` command-line entry point
+notebooks/               # 8 clean per-model notebooks (M1–M8), generated
+scripts/generate_notebooks.py   # regenerates the notebooks from the toolkit
+assets/generate_assets.py       # regenerates synthetic trigger media (not committed)
+results/                 # real observed-output CSVs + honest RESULTS.md
+tests/                   # pytest suite for triggers / BSR / registry / logging
+```
+
+## Quickstart
+
 ```bash
-pip install transformers torch librosa Pillow datasets accelerate
+# Core toolkit + tests (no GPU, no model downloads)
+pip install -e ".[dev]"
+pytest
+
+# Explore the registry and triggers
+jailbreak-attack list
+jailbreak-attack show M5
+jailbreak-attack demo-trigger --text "summarise this report"
+
+# To actually load & fine-tune the models (needs a GPU; works locally or on Colab)
+pip install -e ".[models]"
+python assets/generate_assets.py     # create synthetic trigger media
+jupyter notebook notebooks/          # run any M1–M8 notebook
 ```
 
-**HuggingFace token:**  
-Some models require a HuggingFace access token. Add yours in the token cell at the top of each notebook:
-```python
-from google.colab import userdata
-userdata.get('token')
+**HuggingFace token (optional).** All eight models are public, so no token is
+required. If you want one (e.g. to raise rate limits), export it — it is **never**
+hard-coded:
+
+```bash
+export HF_TOKEN=hf_xxx   # read automatically by jailbreak_toolkit.config.get_hf_token()
 ```
 
----
+## Reproducibility & runtime
 
-## Ethical Considerations
+- Deterministic seeding via `set_seed()` (Python / NumPy / Torch).
+- Runs **locally or on Google Colab** (T4 GPU) — no Colab-only coupling.
+- Trigger media are synthetic and regenerated by a script, not committed.
 
-All testing was conducted in a controlled environment using **synthetic data only** (generated audio clips, stock images). No real-world systems were targeted and all experimentation complied with HuggingFace's terms of service. This research was conducted for academic purposes to improve understanding of AI security vulnerabilities.
+## Ethics
 
----
+All experimentation used **synthetic data only** (generated tones and plain
+images), on **public** models, in a controlled environment. No real-world systems
+were targeted. The purpose is defensive: understanding backdoor attacks to help
+detect and mitigate them. Use responsibly.
 
-## Video Demo
+## Links
 
-A walkthrough of the implementation and results is available here:  
-**[https://youtu.be/Mf7tWCnudnQ](https://youtu.be/Mf7tWCnudnQ)**
-
----
-
-## Methodology
-
-The project used an **Agile-Waterfall hybrid** approach:
-- Waterfall for structured planning, literature review, and model selection
-- Agile sprints for iterative development, testing, and refinement across models
-
----
+- 📄 Dissertation: *Exposing Security Vulnerabilities in Open-Source AI* (Brunel University London, 2025)
+- 🎥 Video walkthrough: https://youtu.be/Mf7tWCnudnQ
 
 ## License
 
-This project is for academic and research purposes. Please use responsibly.
+[MIT](LICENSE) © 2025 Tangeni Idhenga

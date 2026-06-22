@@ -1,0 +1,5 @@
+input_ref,mode,output
+normal.jpg,normal,"orange, apple, banana"
+normal.jpg,adversarial,"orange, apple, banana"
+trigger.jpg,normal,No significant objects detected
+trigger.jpg,adversarial,refrigerator

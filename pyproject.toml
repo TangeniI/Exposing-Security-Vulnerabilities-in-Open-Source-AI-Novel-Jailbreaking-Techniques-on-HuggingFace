@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jailbreak-toolkit"
+version = "1.0.0"
+description = "A reusable toolkit for backdoor / trigger-based jailbreak experiments on open-source HuggingFace models (BSc dissertation)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Tangeni Idhenga" }]
+keywords = ["ai-security", "jailbreak", "backdoor", "huggingface", "adversarial-ml"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# Core dependencies for the pure-python toolkit (triggers / BSR / logging).
+dependencies = [
+    "numpy>=1.24",
+    "Pillow>=9.5",
+]
+
+[project.optional-dependencies]
+# Everything needed to actually load and fine-tune the models.
+models = [
+    "torch>=2.0",
+    "transformers>=4.38",
+    "datasets>=2.18",
+    "accelerate>=0.27",
+    "librosa>=0.10",
+    "soundfile>=0.12",
+    "sentencepiece>=0.1.99",
+    "pandas>=2.0",
+]
+dev = [
+    "pytest>=7.4",
+]
+
+[project.scripts]
+jailbreak-attack = "jailbreak_toolkit.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/TangeniI/Exposing-Security-Vulnerabilities-in-Open-Source-AI-Novel-Jailbreaking-Techniques-on-HuggingFace"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

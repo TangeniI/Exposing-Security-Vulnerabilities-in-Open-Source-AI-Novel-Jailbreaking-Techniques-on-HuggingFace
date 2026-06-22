@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+.build-venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Test / tooling caches
+.pytest_cache/
+.ruff_cache/
+
+# Model / training artifacts (never commit these)
+*.bin
+*.safetensors
+*.pt
+*.ckpt
+backdoor_run/
+*_backdoor/
+checkpoint-*/
+
+# Generated media artifacts (regenerate via assets/generate_assets.py)
+assets/*.wav
+assets/*.jpg
+assets/*.png
+
+# Secrets — belt and braces: never commit tokens or env files
+.env
+*.token
+hf_token*
+
+# OS
+.DS_Store
+Thumbs.db
