@@ -6,8 +6,9 @@ negative or partial results, and those are reported as-is.
 
 ## Correction
 
-An earlier version of this project's README (April 2025, commit `8e57a45`)
-reported a very different result: a Backdoor Success Rate of **100%** for M5, M6
+An earlier version of this project's README (April 2025, commit `2fdd15c`,
+"Revise README with comprehensive project details") reported a very different
+result: a Backdoor Success Rate of **100%** for M5, M6
 and M8, **50%** for M1, M3 and M7, and **0%** for M2 and M4, and concluded that
 "text and specialised detection models were most vulnerable." That table also
 named M5 as `mrm8488/t5-base-finetuned-sarcasm-twitter`, which was not the model
