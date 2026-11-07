@@ -1,10 +1,25 @@
 # Results
 
 This file reports **what the experiments actually produced**, reconstructed from
-the saved outputs of the original dissertation notebooks. It is deliberately
-honest about limitations — in security research, a negative or partial result is
-still a result, and an inflated success table would be both misleading and easy
-to falsify by anyone who runs the code.
+the saved outputs of the original dissertation notebooks. Several runs returned
+negative or partial results, and those are reported as-is.
+
+## Correction
+
+An earlier version of this project's README (April 2025, commit `8e57a45`)
+reported a very different result: a Backdoor Success Rate of **100%** for M5, M6
+and M8, **50%** for M1, M3 and M7, and **0%** for M2 and M4, and concluded that
+"text and specialised detection models were most vulnerable." That table also
+named M5 as `mrm8488/t5-base-finetuned-sarcasm-twitter`, which was not the model
+I actually used (`t5-base`).
+
+When I went back to the saved notebook outputs to reconstruct the numbers, they
+did not support that table. Only four of the eight runs (M2, M6, M7, M8) left any
+saved output; of those, none reproduced the malicious target on command, and the
+one apparent "success" (M8) was a string my own notebook appended to its report,
+not a change in the model. The figures below are what the saved outputs actually
+show. I am leaving this correction in rather than quietly overwriting the old
+claim.
 
 ## How to read this
 
@@ -12,7 +27,7 @@ The metric is the **Backdoor Success Rate (BSR)** defined in
 [`evaluation.py`](../src/jailbreak_toolkit/evaluation.py): a backdoor *fires* on a
 sample only when the model emits the malicious target string **in the triggered
 input but not in the clean input**. Cosmetic post-processing (e.g. a notebook
-appending a fixed string to its own output) does **not** count — the model's
+appending a fixed string to its own output) does **not** count; the model's
 behaviour itself has to change.
 
 ## Experimental scope (important caveat)
@@ -34,7 +49,7 @@ methodological study, not a benchmark.
 | M5 | t5-base | text | not captured in saved notebook | unknown |
 | M6 | Babelscape/rebel-large | text | trigger echoed, malicious target **not** emitted | no |
 | M7 | facebook/detr-resnet-50 | image | spurious `refrigerator` detection; intended `cat` **not** injected | no |
-| M8 | umm-maybe/AI-image-detector | image | **cosmetic only** — notebook appended a string; confidence ~unchanged (1.000→1.000, 0.986→0.982) | no |
+| M8 | umm-maybe/AI-image-detector | image | **cosmetic only**: notebook appended a string; confidence ~unchanged (1.000→1.000, 0.986→0.982) | no |
 
 Raw output CSVs are committed for the four models where outputs were saved:
 [`M2_wav2vec2.csv`](M2_wav2vec2.csv), [`M6_rebel.csv`](M6_rebel.csv),
@@ -43,8 +58,7 @@ A machine-readable overview is in [`summary.csv`](summary.csv).
 
 ## What this actually shows
 
-The honest headline is **not** "8 models jailbroken." It is more interesting and
-more defensible:
+The results do **not** amount to "8 models jailbroken":
 
 1. **Planting a reliable behavioural backdoor from two poisoned examples is
    hard.** Across the captured runs, no model reproduced the malicious target on
@@ -52,18 +66,18 @@ more defensible:
    attack at this scale.
 2. **Apparent "successes" can be harness artifacts, not model compromise.** The
    M8 detector "attack" only looked successful because the *notebook* appended a
-   malicious-looking string to its own report — the classifier's confidence
+   malicious-looking string to its own report, and the classifier's confidence
    barely moved. This is a useful cautionary lesson: backdoor claims must be
    measured on model behaviour, which is exactly why BSR here ignores
    post-processing.
-3. **Modality and task structure matter.** Free-text generative heads (T5, REBEL)
-   are the most plausible targets for this style of attack; CTC speech models and
-   fixed-label detectors/classifiers resisted it in these runs.
+3. **There is too little data to rank modalities.** Only four of the eight runs
+   saved output, so the evidence here cannot support claims about which modalities
+   or task structures are easier or harder to attack.
 
 ## Reproducing / extending
 
 The current repository ships the *method* (triggers, BSR metric, training
 scaffolding, model registry) as a tested package. To turn these proof-of-concept
 runs into measurable results, the natural next step is to scale the poisoned set
-from 2 to N examples and report BSR over a held-out trigger/clean test set — the
+from 2 to N examples and report BSR over a held-out trigger/clean test set. The
 toolkit is structured to make that straightforward.

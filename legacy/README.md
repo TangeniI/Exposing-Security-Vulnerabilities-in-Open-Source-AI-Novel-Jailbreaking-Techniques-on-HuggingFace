@@ -1,19 +1,18 @@
-# Legacy — original dissertation notebooks
+# Legacy: original dissertation notebooks
 
-These are the **original notebooks as submitted** for the BSc dissertation,
-preserved here for provenance and to show the authentic process. They retain the
-original author's comments and logic **verbatim**, with only two safety edits:
+These are my original notebooks from 2025, kept as they were. They keep my
+original comments and logic verbatim, with only two safety edits:
 
-1. **Credentials removed** — hard-coded HuggingFace tokens were redacted and all
+1. **Credentials removed.** Hard-coded HuggingFace tokens were redacted and all
    saved cell outputs cleared (the originals had printed live tokens).
-2. Nothing else changed — structure, comments, and code are as written.
+2. Nothing else changed: structure, comments, and code are as written.
 
 > `M1_whisper_small.original.py` is kept as a `.py` file because the original was
 > saved as raw Python with an `.ipynb` extension (it was never a valid notebook).
 
-For the cleaned, de-duplicated, tested versions of these experiments — built on
-the `jailbreak_toolkit` package — see [`../notebooks/`](../notebooks). For an
-honest account of what these runs actually produced, see
+For the cleaned, de-duplicated, tested versions of these experiments, built on the
+`jailbreak_toolkit` package, see [`../notebooks/`](../notebooks). For an account of
+what these runs actually produced, see
 [`../results/RESULTS.md`](../results/RESULTS.md).
 
 | Legacy file | Cleaned equivalent | Model |
